@@ -1,0 +1,24 @@
+# Local build files and generated design drafts
+.DS_Store
+.chart-data-*/
+.ecommerce-build/
+tmp/
+output/charts/
+
+# Superseded local reports; README links to the current Google Slides deck
+output/presentation/ecommerce-optimized.pptx
+output/presentation/ecommerce-optimized.pdf
+
+# Local credentials and environments
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+
+# Raw datasets should not be published without confirming redistribution rights
+data/raw/
+data/processed/
+cleaned_data.csv
+
+output/presentation/ecommerce-consulting.pptx
