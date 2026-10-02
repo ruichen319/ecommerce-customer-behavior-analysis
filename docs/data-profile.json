@@ -1,0 +1,26 @@
+{
+  "file": "cleaned_data.csv",
+  "bytes": 661333669,
+  "rows": 12256906,
+  "unique_users": 10000,
+  "unique_items": 2876947,
+  "unique_categories": 8916,
+  "behavior_counts": {
+    "1": 11550581,
+    "3": 343564,
+    "2": 242556,
+    "4": 120205
+  },
+  "missing_values": {
+    "user_id": 0,
+    "item_id": 0,
+    "behavior_type": 0,
+    "item_category": 0,
+    "time": 0,
+    "date": 0,
+    "hour": 0
+  },
+  "min_time": "2014-11-18 00",
+  "max_time": "2014-12-18 23",
+  "date_hour_mismatches": 0
+}

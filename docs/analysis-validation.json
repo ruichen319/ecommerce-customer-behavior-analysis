@@ -1,0 +1,47 @@
+{
+  "eligible_categories": 680,
+  "click_pairs": 588488,
+  "engage_pairs": 104079,
+  "buy_pairs": 21259,
+  "funnel_purchase_events": 37162,
+  "repeat_pairs": 2700,
+  "repeat_purchase_events": 10825,
+  "cart_status": {
+    "no purchase observed": 37605,
+    "insufficient follow-up": 15972,
+    "purchased within benchmark": 13845,
+    "purchased after benchmark": 3176,
+    "no category benchmark": 2559
+  },
+  "cart_top10": {
+    "1863": 724,
+    "6513": 650,
+    "5894": 611,
+    "13230": 610,
+    "5399": 607,
+    "5232": 563,
+    "5027": 502,
+    "10894": 499,
+    "4370": 493,
+    "2825": 471
+  },
+  "purchase_scope": {
+    "all_category_funnel_events": 43765,
+    "all_purchase_events": 120205,
+    "all_purchase_pairs": 81659,
+    "eligible_purchase_events": 90949,
+    "eligible_purchase_pairs": 59738
+  },
+  "corrected_repeat_event_share_pct": 29.13,
+  "corrected_funnel_coverage_pct": 40.86,
+  "matches_report": {
+    "eligible_categories": true,
+    "click_pairs": true,
+    "engage_pairs": true,
+    "buy_pairs": true,
+    "funnel_purchase_events": true,
+    "repeat_pairs": true,
+    "repeat_purchase_events": true
+  },
+  "cart_matches_report": true
+}
