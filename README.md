@@ -1,106 +1,113 @@
-# E-commerce Customer Behavior Analysis
+# E-commerce Customer Behavior Analysis | MySQL
 
-SQL-based analysis of customer conversion, repeat purchases, and cart follow-up opportunities across **12.3 million behavioral events**.
+Analyzed **12.3m behavioral events** to identify conversion gaps, repeat-purchase patterns, and audiences for cart-reminder experiments.
 
-This portfolio project translates customer behavior analysis into prioritized experiment proposals. The repository contains cleaned MySQL scripts, the original SQL archive, analytical documentation, an independent Python validation script, and the project presentation. The full cleaned dataset remains local.
+[SQL analysis](sql/ecommerce_analysis_final.sql) · [Presentation PDF](presentation/ecommerce-customer-behavior-analysis.pdf) · [Google Slides](https://docs.google.com/presentation/d/1gZy5WcbtXoEBcxhPdkYcK3yrrE5zaTVYPZoAbkv-bmo/edit) · [Query guide](docs/query-guide.md)
 
-## Business question
+---
 
-Where should an e-commerce business focus experiments to increase purchase events?
+## Business Context
 
-The analysis examines three opportunities:
+**Where should an e-commerce business focus experiments to generate additional purchase events?**
 
-- Improve conversion in categories with large engaged audiences.
-- Tailor post-purchase recommendations using category-level repeat behavior.
-- Identify shoppers eligible for cart reminders using category-specific purchase timing.
+The analysis follows browsing, engagement, and purchase to prioritize conversion improvements, post-purchase offers, and cart reminders. The objective is additional purchase events across all categories; the available fields do not measure revenue or profit.
 
-## Dataset and scope
+## Technical Approach
+
+MySQL queries build eligible-category and engaged shopper-category tables from user behavior.
+
+1. Map numeric behavior codes to click, save, add to cart, and buy; calculate dataset and purchase baselines.
+2. Build a sequential funnel using the first click, first subsequent engagement, and first subsequent purchase within each shopper-category combination.
+3. Select categories with at least 30 click users and 30 engaged users, then compare audience size and conversion.
+4. Segment categories by repeat purchasing on at least two distinct dates after engagement.
+5. Use category-specific P80 cart-to-purchase times to separate reminder candidates from records with insufficient follow-up.
+
+SQL techniques include **CTEs, self-joins, LEFT JOINs, conditional aggregation, date functions, and window functions**. `ROW_NUMBER()` supports category rankings and nearest-rank P80 calculations.
+
+## Dataset & Scope
 
 | Attribute | Scope |
 | --- | --- |
+| Dataset source | — |
 | Observation period | November 18–December 18, 2014 |
-| Behavioral events | 12,256,906 |
-| Unique users | 10,000 |
-| Unique items | 2,876,947 |
-| Product categories | 8,916 |
-| Categories eligible for funnel analysis | 680 |
+| Behavioral events | 12.3m |
+| Unique users | 10k |
+| Unique items | 2.9m |
+| Product categories | 8.9k |
+| Categories selected for funnel analysis | 680 |
 | Timestamp resolution | Hour |
 
-Behaviors include clicks, saves, cart additions, and purchases. Eligible categories have at least 30 click users and 30 engaged users. Dataset provenance and redistribution terms must be documented before raw data is published.
+Counts use **k = thousand** and **m = million** and are rounded for readability. Percentages use full-precision counts.
 
-## Key findings
+The analytical unit is a **shopper-category combination**: one shopper can appear in several categories, and each combination can generate multiple purchase events. The cleaned CSV remains local. See the [data dictionary](docs/data-dictionary.md) for fields and SQL input requirements.
 
-### 1. Conversion funnel
+## Tools
 
-The sequential funnel contains **588,488 click**, **104,079 engaged**, and **21,259 purchasing user–category pairs** across eligible categories.
-
-| Metric | Result |
+| Tool | Purpose |
 | --- | --- |
-| Click-to-engagement conversion | 17.69% |
-| Engagement-to-purchase conversion | 20.43% |
-| End-to-end conversion | 3.61% |
+| MySQL 9.7.0 | Funnel analysis, category segmentation, and purchase-timing calculations |
+| MySQL Workbench | SQL development, execution, and result inspection |
+| Google Slides | Presentation of findings and proposed business actions |
 
-Ten categories were prioritized by selecting above-average engaged audiences and below-average category conversion, then ranking by engaged audience size. The selection benchmarks are **153.06 engaged users** and **19.21% category-average conversion**. The latter is an unweighted category mean, distinct from the pooled 20.43% conversion rate.
+## Key Findings
 
-### 2. Repeat-purchase segmentation
+### 1. Conversion: engagement does not consistently lead to purchase
 
-**2,700 repeat buyer–category pairs**, representing **12.70%** of funnel buyer–category pairs, accounted for **10,825 purchase events**, or **29.13%** of funnel purchase events.
+The selected-category funnel contains **588k clicked → 104k engaged → 21k purchasing combinations**, with **20.43% engage-to-buy** and **3.61% end-to-end conversion**. Ten categories combine above-average engaged audiences with below-average category conversion. Selection uses **153.06 engaged shoppers** and **19.21% category-average conversion**; the latter is distinct from the pooled 20.43% rate.
 
-This supports testing same-category recommendations in higher-repeat categories and complementary-product recommendations where product relevance can be verified. The purchase contribution includes first purchases and does not represent incremental uplift.
+### 2. Repeat purchase: 12.70% of purchasing combinations contribute 29.13% of events
 
-### 3. Cart follow-up opportunities
+**2.7k combinations** purchased on at least two different dates in the same category after engagement. They generated **10.8k of the 37k selected-category funnel purchase events**, including first purchases. The overall **12.70%** repeat rate is used to group categories for post-purchase tests; it does not assign each shopper to one exclusive segment.
 
-Category-specific 80th-percentile cart-to-purchase times (P80) were used to distinguish records with sufficient follow-up from those observed for too little time.
+### 3. Cart follow-up: 37.6k records qualify for reminder testing
 
-Of **73,157 user–category cart records**, **37,605 (51.40%)** had no observed subsequent purchase after sufficient follow-up. The ten largest category audiences contained **5,730 candidate records**.
+Of **73k shopper-category cart records**, **37.6k (51.40%)** had no subsequent purchase observed despite follow-up reaching category P80. The ten largest category audiences contain **5.7k candidates (15.24%)**. These are potential experiment participants, not confirmed abandoned carts or recoverable purchases.
 
-These are reminder-test candidates, not confirmed abandoned carts or distinct users. Purchase status should be checked again before any reminder is sent.
+## Business Recommendations / Experiments
 
-## Analytical approach
+- **Investigate conversion barriers:** survey engaged non-buyers in priority categories about purchase intent, availability, pricing, shipping, and product information, then test improvements supported by the findings.
+- **Tailor post-purchase offers:** test subscriptions where replenishment needs are confirmed, or repeat-purchase discounts, in higher-repeat categories; test relevant complementary-product recommendations in lower-repeat categories.
+- **Test cart reminders:** at category P80, recheck purchase status and randomly assign eligible users to reminder and no-reminder groups.
 
-1. Define a user–category funnel: first click → later save or cart addition → later purchase within the same category.
-2. Apply minimum audience thresholds and calculate pooled and category-level conversion rates.
-3. Identify repeat buyers using purchases on at least two distinct dates in the same category after first engagement.
-4. Compare elapsed cart follow-up time against category-specific P80 purchase-time benchmarks.
-5. Translate the findings into proposed user-level randomized experiments.
+Measure **purchase events per randomized user across all categories** over equal follow-up periods. Deduplicate shoppers and use separate pilots or mutually exclusive groups. These are proposed experiments; no conversion uplift, revenue impact, or treatment effect has been established.
 
-The recommended primary experiment outcome is **purchase events per randomized user across all categories**. Audiences should be deduplicated, follow-up windows aligned, and reminder and incentive treatments evaluated separately. No experiments have been reported as implemented in this repository.
+## Project Structure
 
-## Deliverables
+```text
+ecommerce-customer-behavior-analysis/
+├── README.md
+├── sql/
+│   └── ecommerce_analysis_final.sql   # Organized main analysis
+├── presentation/
+│   └── ecommerce-customer-behavior-analysis.pdf  # 14-slide business presentation
+├── archive/
+│   ├── README.md
+│   └── ecommerce_analysis_final.sql   # Original submitted SQL
+└── docs/
+    ├── query-guide.md                # Business questions mapped to SQL
+    ├── sql-guide.md                  # Input requirements and execution order
+    ├── data-dictionary.md            # Field definitions and source status
+    ├── metric-definitions.md         # Exact denominators and calculation rules
+    ├── portfolio-next-steps.md       # Result exports and publication checklist
+    └── career-materials.md           # Resume bullets and interview summary
+```
 
-- [Project presentation](https://docs.google.com/presentation/d/1gZy5WcbtXoEBcxhPdkYcK3yrrE5zaTVYPZoAbkv-bmo/edit): 16 slides covering findings, business recommendations, and limitations. Access is controlled by the presentation owner.
-- [SQL execution guide](docs/sql-guide.md): six numbered MySQL scripts, dependencies, and documented cleanup decisions.
-- [Validation findings](docs/validation-findings.md): the scope discrepancy found during independent CSV reconciliation.
-- [Metric definitions and reconciliation](docs/metric-definitions.md): denominators, scope, and interpretation of the reported results.
-- [Data dictionary and validation](docs/data-dictionary.md): cleaned CSV structure, verified totals, and outstanding source documentation.
+## How to Run Locally
 
-## Tools and skills demonstrated
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/ruichen319/ecommerce-customer-behavior-analysis.git
+   cd ecommerce-customer-behavior-analysis
+   ```
+2. Prepare `ecommerce_project.user_behavior` with the fields described in the [SQL guide](docs/sql-guide.md). The source dataset and original import/preprocessing steps are not bundled, so the repository is not yet a self-contained reproduction package.
+3. Open `sql/ecommerce_analysis_final.sql` in MySQL Workbench and run its sections in order. The script rebuilds derived tables; retain the source table.
+4. Review results using the [query guide](docs/query-guide.md) and [metric definitions](docs/metric-definitions.md).
 
-Database: **MySQL 9.7.0**, as reported by the project owner from `SELECT VERSION();`. SQL client: **MySQL Workbench**.
-
-**SQL analysis · Conversion funnels · Customer segmentation · Percentile-based timing analysis · Data visualization · Experiment planning · Business communication**
-
-The event count, distinct user/item/category counts, and observation period have been independently checked against the supplied cleaned CSV and match the presentation. Independent Python reconciliation confirms funnel stage counts, repeat counts, and cart classifications. It identifies 37,162 purchase events in the eligible funnel, correcting the presentation denominator of 43,765. The project owner also verified the corrected 37,162 purchase-event count in MySQL. The full numbered SQL workflow has not yet been executed end to end in MySQL. Local presentation-build files and earlier visual design drafts are excluded from the published project.
+The original selected-category funnel count was confirmed in MySQL. The organized script passed synthetic equivalence checks; full-dataset MySQL execution remains to be confirmed.
 
 ## Limitations
 
-- Purchase events are not confirmed orders, revenue, or profit.
-- Category-level records may count the same user in multiple categories.
-- Hour-level timestamps cannot order same-hour events; strict sequencing excludes those transitions.
-- The short observation window creates unequal follow-up and limits assessment of longer purchase cycles.
-- The defined funnel covers **40.86% of purchase events in eligible categories**; other observed paths remain outside it.
-- P80 benchmarks reflect observed purchasers and may use as few as five observations.
-- Category IDs alone do not establish product relevance for cross-selling.
-- Findings are descriptive. Recommendations do not establish causal or financial impact.
-
-## Reproducibility status and next steps
-
-Run the numbered files in `sql/` following the [execution guide](docs/sql-guide.md). The original script is preserved in `archive/` and is not part of the execution sequence. A separate Python validator checks the analysis against the locally supplied cleaned CSV.
-
-Remaining work:
-
-- Document the dataset source, cleaning rules, and permitted access method.
-- Execute the cleaned scripts in MySQL and confirm the import and query outputs.
-- Confirm presentation sharing settings for portfolio readers.
-
-The original data cleaning process has not been reconstructed from the cleaned CSV.
+- Purchase events are not confirmed orders, revenue, or profit; shopper-category counts are not distinct-user totals.
+- The one-month window creates unequal follow-up, while hour-level timestamps exclude same-hour transitions from the strict sequential funnel.
+- The funnel covers **40.86%** of purchase events in selected categories. P80 uses observed purchasers and may rely on as few as five observations per category.
+- Findings are descriptive. Category IDs and repeat rates alone do not establish product compatibility, subscription suitability, or causal impact.
