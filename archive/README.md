@@ -1,3 +1,5 @@
-# Original analysis
+# Original submitted SQL
 
-`ecommerce_analysis_final.sql` preserves the owner’s latest supplied revision, including the corrected eligible-category purchase join, explicit behavior mapping, and separate funnel-rate names. It still assumes pre-existing source tables and is retained as a source revision, not as the numbered reproducible workflow.
+`ecommerce_analysis_final.sql` preserves the latest SQL supplied by the project owner before reorganization. It is a source reference, not an additional execution step.
+
+Run the organized version in [`sql/ecommerce_analysis_final.sql`](../sql/ecommerce_analysis_final.sql). Its shared intermediate tables remove repeated computations while retaining the presentation’s metric definitions. See the [query guide](../docs/query-guide.md) for changes and slide coverage.
