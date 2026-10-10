@@ -1,6 +1,6 @@
 # Metric definitions and reconciliation
 
-Source: the latest `ecommerce-consulting.pptx` presentation and the SQL output values documented in its local build source. Stage counts, repeat counts, and cart classifications have also been independently reconciled against the cleaned CSV. The eligible-funnel purchase-event denominator is corrected below; see validation-findings.md.
+Source: the project presentation and the final MySQL analysis script. The project owner confirmed 37,162 selected-category funnel purchase events in MySQL. All counts below retain full precision for calculation reference.
 
 ## Counting units
 

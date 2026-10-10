@@ -1,57 +1,31 @@
-# Cleaned dataset
+# Data dictionary
 
-The project owner supplied `cleaned_data.csv`, a 661,333,669-byte CSV containing 12,256,906 records. This is a cleaned analysis input; the original source and cleaning procedure have not yet been supplied. The full CSV remains local and is excluded from Git.
+The project uses a cleaned e-commerce behavior dataset covering November 18–December 18, 2014. The full CSV remains local.
 
-## Fields
+Dataset source: —
 
-Descriptions below follow the observed column names and values. Behavior meanings below are confirmed by the original SQL mapping; the external dataset documentation is still needed.
+Access terms: —
 
-| Column | Observed representation | Interpretation |
-| --- | --- | --- |
-| `user_id` | Integer-like identifier | User identifier; preserve as an identifier |
-| `item_id` | Integer-like identifier | Item identifier |
-| `behavior_type` | Codes 1, 2, 3, 4 | 1 = click, 2 = save, 3 = add to cart, 4 = buy |
-| `item_category` | Integer-like identifier | Product category identifier |
-| `time` | `YYYY-MM-DD HH` | Event timestamp at hour resolution; timezone unspecified |
-| `date` | `YYYY-MM-DD` | Date component of `time` |
-| `hour` | Integer-like hour | Hour component of `time` |
+The original cleaning procedure has not yet been documented.
 
-## Verified profile
+## Cleaned CSV fields
 
-A complete chunked scan of the CSV returned:
-
-| Measure | Result |
+| Column | Interpretation |
 | --- | --- |
-| Records | 12,256,906 |
-| Distinct users | 10,000 |
-| Distinct items | 2,876,947 |
-| Distinct categories | 8,916 |
-| Earliest timestamp | 2014-11-18 00 |
-| Latest timestamp | 2014-12-18 23 |
-| Missing values detected by the CSV reader | 0 across all seven columns |
-| Date/hour inconsistencies with timestamp components | 0 |
+| `user_id` | User identifier |
+| `item_id` | Item identifier |
+| `behavior_type` | 1 = click, 2 = save, 3 = add to cart, 4 = buy |
+| `item_category` | Product category identifier |
+| `time` | Event timestamp in `YYYY-MM-DD HH` format |
+| `date` | Date component |
+| `hour` | Hour component |
 
-All four population counts and the date range match the latest presentation.
+## SQL input table
 
-| Behavior code | Records |
-| --- | --- |
-| 1 | 11,550,581 |
-| 2 | 242,556 |
-| 3 | 343,564 |
-| 4 | 120,205 |
+The final script reads `user_behavior`, which contains `event_id`, `user_id`, `item_id`, `item_category`, `behavior_timestamp`, and numeric `behavior_type`. It creates a `behavior` table with descriptive behavior labels. CSV import, event ID creation, and timestamp conversion are prerequisites, not included preprocessing code.
 
-The original SQL confirms code 4 represents purchases. Its 120,205 events match the reported all-category purchase-event total.
+## Reported scope
 
-Machine-readable results are saved in [data-profile.json](data-profile.json).
+The project reports 12,256,906 events, 10,000 users, 2,876,947 items, and 8,916 categories. The selected funnel includes 680 categories. README counts are abbreviated for readability; metric documentation retains full precision.
 
-## Scope of validation
-
-The scan checked row count, distinct identifiers, behavior frequencies, missing values, timestamp range, and consistency of date/hour components. It did not establish duplicate-event policy, verify the original cleaning process, or establish the original preprocessing steps. Separate analytical reconciliation is documented in [validation findings](validation-findings.md).
-
-## Local data setup
-
-Once the source and access terms are documented, place the cleaned analysis input at `data/processed/cleaned_data.csv` in a local checkout. That directory is ignored by Git. Database import and query execution instructions are in [the SQL guide](sql-guide.md).
-
-Database: MySQL 9.7.0, reported by the project owner from `SELECT VERSION();`. SQL client: MySQL Workbench.
-
-Still needed: dataset source/download link and cleaning script or explanation.
+See the [SQL guide](sql-guide.md) and [metric definitions](metric-definitions.md) for execution and counting rules.

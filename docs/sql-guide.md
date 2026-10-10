@@ -1,50 +1,30 @@
-# Running the analysis
+# Running the SQL analysis
 
-Environment reported by the project owner: MySQL 9.7.0 with MySQL Workbench.
+Use [ecommerce_analysis_final.sql](../sql/ecommerce_analysis_final.sql), the project owner’s final script. Environment: MySQL 9.7.0 and MySQL Workbench.
 
-## Execution order
+## Input
 
-1. Run `sql/00_setup.sql` to create the dedicated `ecommerce_portfolio` schema, an empty CSV input table, and the normalized behavior view. This does not modify the original `ecommerce_project` database.
-2. Import `cleaned_data.csv` into `ecommerce_portfolio.cleaned_data` using the Workbench Table Data Import Wizard. Match all seven column names. Import once into an empty table; importing again duplicates events. The CSV has 12,256,906 data rows. The supplied SQL did not include the original CSV import or cleaning process.
-3. Run `sql/01_data_checks.sql` and compare with `docs/data-profile.json`. Stop and investigate if counts, timestamps, or behavior codes differ.
-4. Run `sql/02_funnel.sql` to create shared funnel views and calculate conversion results and priority categories.
-5. Run `sql/03_repeat_purchase.sql` to create the purchase-pair view and calculate repeat-purchase segments.
-6. Run `sql/04_cart_followup.sql` for P80 classifications and the ten largest reminder audiences.
-7. Run `sql/05_purchase_reconciliation.sql` to compare purchase scope across all categories, eligible categories, and the eligible funnel.
+The script expects `ecommerce_project.user_behavior` to exist with `event_id`, `user_id`, `item_id`, `item_category`, `behavior_timestamp`, and numeric `behavior_type`. Codes 1, 2, 3, and 4 represent click, save, add to cart, and buy. `behavior_timestamp` should be a parsed date/time field.
 
-Open and execute each file in Workbench in this order. The scripts use persistent views so analysis stages can be run in separate query tabs. Re-running a view definition replaces that analysis view. The setup does not erase or reload input rows.
+The supplied cleaned CSV has `time`, `date`, and `hour` fields instead of `event_id` and `behavior_timestamp`. The original import and preprocessing steps are not included; prepare the source table before running this script. The full CSV remains local.
 
-These views prioritize readable definitions; repeated scans and timestamp parsing may be slow on the 12.3-million-row input. Runtime and query plans have not been benchmarked on MySQL. Materializing typed, indexed staging tables is a possible later optimization.
+## Execution
 
-## Changes from the original script
+Open the main script in Workbench and run numbered sections in order:
 
-The unchanged original is retained in `archive/ecommerce_analysis_original.sql` for reference only. Do not run it as part of the numbered workflow: it contains mixed historical definitions, a `DROP TABLE`, and queries with expired CTE references.
+1. Normalize behavior codes and add a pair/type/time lookup index.
+2. Return dataset overview and all-category purchase baseline.
+3. Build shared funnel pairs, category summaries, eligible categories and engaged pairs; return pooled funnel metrics.
+4. Return category averages and ten conversion priorities.
+5. Build funnel purchasing pairs; return repeat summary and category segments.
+6. Build cart follow-up classifications; return counts and shares.
+7. Return ten cart-reminder categories and their combined coverage.
+8. Reconcile purchase scopes and funnel coverage for supporting documentation.
 
-- Consolidated repeated funnel calculations into shared views.
-- Retained sequential first qualifying events: engagement strictly after first click, then purchase strictly after engagement.
-- Retained the latest eligible-category cart analysis with strict `>` sequencing, rather than the older unrestricted `>=` version.
-- Fixed three funnel percentages that shared the same `engage_to_buy_rate` alias.
-- Applied the eligible-category restriction to funnel purchase-event reconciliation. One historical query defined eligibility but did not use it.
-- Replaced references to `stage_2` outside its CTE statement with explicit shared-view dependencies.
-- Retained distinct purchase dates for repeat behavior, rather than the older multiple-event definition.
-- Made the published conversion audience threshold (`engage_users > 153.06`) explicit, alongside conversion below 19.21%.
-- Retained the published 12.70% repeat-segmentation threshold and deterministic category tie-breaking.
-- Replaced the catch-all `ELSE 'buy'` with an explicit code 4 mapping; unknown codes are exposed by the checks.
-- Added CSV setup separately because the original depended on a pre-existing `user_behavior` table with an `event_id` and parsed timestamp absent from the supplied CSV.
+The script rebuilds seven derived tables: `behavior`, `funnel_pairs`, `funnel_category_summary`, `funnel_eligible_categories`, `funnel_engaged_pairs`, `funnel_purchase_pairs`, and `cart_followup`. It does not drop `user_behavior`. Run all steps from the beginning after source changes; later steps depend on earlier tables. Do not run the archive as a second step.
 
-## Cart percentile details
+The owner confirmed 37,162 selected-category funnel purchase events in MySQL. The organized and submitted scripts were compared on a synthetic fixture using SQLite compatibility substitutions; their shared baseline, funnel, repeat, and cart outputs matched. This is a logic check, not native MySQL validation. The organized script has not yet been executed end to end against the full MySQL dataset.
 
-P80 uses the nearest observed rank `CEIL(0.8 * purchase_count)` with at least five observed purchasers per category. Purchases exactly at P80 are classified within the benchmark. Unpurchased records with follow-up exactly at P80 have sufficient follow-up. Missing benchmarks take precedence over other classifications.
+## Supporting calculations
 
-## Verification
-
-`scripts/validate_analysis.py` independently computes the central analytical definitions from the cleaned CSV using Python, pandas, and NumPy:
-
-```bash
-python -m pip install -r requirements.txt
-python scripts/validate_analysis.py /path/to/cleaned_data.csv
-```
-
-The script writes `docs/analysis-validation.json` and exits with a nonzero status if the central funnel, repeat, or cart counts differ from the presentation. This is independent analytical reconciliation; it does not execute or certify the MySQL scripts. The numbered scripts still need a run in the owner's MySQL environment to confirm engine execution and import behavior.
-
-The owner has confirmed the corrected eligible-funnel count of 37,162 in MySQL using the updated source query. This does not imply the refactored numbered workflow has been executed end to end.
+The organized script returns 37,162 / 90,949 = 40.86% coverage and 10,825 / 37,162 = 29.13% repeat-event contribution directly, along with cart shares and top-ten coverage. These expectations refer to the original dataset; they are not hardcoded query results. See [metric definitions](metric-definitions.md).
