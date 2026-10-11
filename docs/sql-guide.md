@@ -23,7 +23,7 @@ Open the main script in Workbench and run numbered sections in order:
 
 The script rebuilds seven derived tables: `behavior`, `funnel_pairs`, `funnel_category_summary`, `funnel_eligible_categories`, `funnel_engaged_pairs`, `funnel_purchase_pairs`, and `cart_followup`. It does not drop `user_behavior`. Run all steps from the beginning after source changes; later steps depend on earlier tables. Do not run the archive as a second step.
 
-The owner confirmed 37,162 selected-category funnel purchase events in MySQL. The organized and submitted scripts were compared on a synthetic fixture using SQLite compatibility substitutions; their shared baseline, funnel, repeat, and cart outputs matched. This is a logic check, not native MySQL validation. The organized script has not yet been executed end to end against the full MySQL dataset.
+Executed end to end in MySQL 9.7.0 by the project owner, with all outputs verified against the documented expected results.
 
 ## Supporting calculations
 

@@ -34,7 +34,7 @@ Optional next addition: three readable slide images in `assets/` covering conver
 
 The repository now includes the organized main SQL, original submitted SQL in `archive/`, current documentation, and the 14-slide presentation PDF. Superseded SQL scripts, assistant-generated validation artifacts, and Python dependencies have been removed from the current branch; earlier versions remain in Git history.
 
-The full cleaned CSV, local backups, temporary checks, and session history remain excluded. Remaining work: confirm full-dataset execution in MySQL, export the actual result grids, document dataset provenance, and confirm presentation sharing for external readers.
+The full cleaned CSV, local backups, temporary checks, and session history remain excluded. Executed end to end in MySQL 9.7.0 by the project owner, with all outputs verified against the documented expected results. Remaining work: export the actual result grids, document dataset provenance, and confirm presentation sharing for external readers.
 
 Suggested repository description:
 
