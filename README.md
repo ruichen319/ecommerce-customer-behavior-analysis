@@ -103,7 +103,7 @@ ecommerce-customer-behavior-analysis/
 3. Open `sql/ecommerce_analysis_final.sql` in MySQL Workbench and run its sections in order. The script rebuilds derived tables; retain the source table.
 4. Review results using the [query guide](docs/query-guide.md) and [metric definitions](docs/metric-definitions.md).
 
-The original selected-category funnel count was confirmed in MySQL. The organized script passed synthetic equivalence checks; full-dataset MySQL execution remains to be confirmed.
+Executed end to end in MySQL 9.7.0 by the project owner, with all outputs verified against the documented expected results.
 
 ## Limitations
 
