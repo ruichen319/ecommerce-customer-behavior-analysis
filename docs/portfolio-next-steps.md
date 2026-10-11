@@ -1,6 +1,6 @@
 # Portfolio preparation
 
-The README and query guide are ready locally. The main analysis reorganizes the owner's SQL; no additional analysis tools or experimental results are represented as completed work.
+The README, organized SQL, query guide, and presentation PDF are included in this repository. The main analysis reorganizes the owner's SQL; no additional analysis tools or experimental results are represented as completed work.
 
 ## 1. Complete dataset provenance
 
@@ -26,17 +26,15 @@ Use the query guide to locate the SQL. Preserve actual exported counts. If combi
 
 ## 3. Add presentation evidence
 
-The current 14-slide Google Slides presentation has been exported and visually checked: [presentation PDF](../presentation/ecommerce-customer-behavior-analysis.pdf). It is included locally in `presentation/` and linked from the README alongside the online deck.
+The current 14-slide Google Slides presentation has been exported and visually checked: [presentation PDF](../presentation/ecommerce-customer-behavior-analysis.pdf). It is included in `presentation/` and linked from the README alongside the online deck.
 
 Optional next addition: three readable slide images in `assets/` covering conversion, repeat-purchase audiences, and cart follow-up. Confirm that external readers can access the online presentation. Re-export the PDF whenever the online deck changes.
 
-## 4. Finish the GitHub update
+## 4. Publication status and final checks
 
-- Replace README and supporting documentation with the current local versions.
-- Publish `sql/ecommerce_analysis_final.sql` and retain only its final source copy in `archive/`.
-- Remove previously uploaded assistant-generated validation scripts, dependencies, validation JSON files, and obsolete six-step SQL files. Uploading new folders alone does not remove old remote files.
-- Keep the full cleaned CSV, local backups, build files, and session history out of the repository.
-- Check relative links and compare actual MySQL outputs with the slide figures.
+The repository now includes the organized main SQL, original submitted SQL in `archive/`, current documentation, and the 14-slide presentation PDF. Superseded SQL scripts, assistant-generated validation artifacts, and Python dependencies have been removed from the current branch; earlier versions remain in Git history.
+
+The full cleaned CSV, local backups, temporary checks, and session history remain excluded. Remaining work: confirm full-dataset execution in MySQL, export the actual result grids, document dataset provenance, and confirm presentation sharing for external readers.
 
 Suggested repository description:
 
